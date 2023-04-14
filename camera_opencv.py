@@ -20,6 +20,12 @@ class Camera(BaseCamera):
         camera = cv2.VideoCapture(Camera.video_source)
         if not camera.isOpened():
             raise RuntimeError('Could not start camera.')
+            
+        # Set the frame rate to 10 fps
+        camera.set(cv2.CAP_PROP_FPS, 10)
+        
+        # Set the JPEG quality to 50%
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
 
         while True:
             # read current frame
