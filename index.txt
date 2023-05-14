@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Streaming</title>
+</head>
+<body>
+    <video id="videoPlayer" autoplay></video>
+    <script>
+        var video = document.getElementById("videoPlayer");
+        var public_key = "{{public_key}}";
+        var ws = new WebSocket("ws://" + window.location.host + "/video_feed");
+
+        ws.onmessage = function(event) {
+            var signature = event.data.slice(0, 256);
+            var frameData = event.data.slice(256);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/verify_signature");
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.onreadystatechange = function() {
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    if (JSON.parse(this.responseText).verified) {
+                        video.src = URL.createObjectURL(new Blob([frameData], { type: "video/mp4" }));
+                    }
+                    else {
+                        alert("Digital signature invalid!");
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({
+                signature: signature,
+                data: frameData,
+                public_key: public_key
+            }));
+        };
+
+        window.onunload = function() {
+            ws.close();
+        };
+    </script>
+</body>
+</html>

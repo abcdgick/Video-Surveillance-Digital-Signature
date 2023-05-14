@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Video Stream Client</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Video Stream Client</h1>
+    <video id="video" controls></video>
+    <p id="warning"></p>
+
+    <script>
+      // Set up WebSocket connection
+      var ws = new WebSocket("ws://localhost:8000/video_feed");
+
+      // Get video element
+      var video = document.getElementById("video");
+
+      // Get warning element
+      var warning = document.getElementById("warning");
+
+      // Set up BLAKE2s hash object
+      var blake2s = new window.Blake2s();
+
+      // Set up RSA-PSS verifier object
+      var publicKey = "..."  // Insert public key here
+      var verifier = new window.RSAPSSVerifier(publicKey);
+
+      // Handle new message from server
+      ws.onmessage = function(event) {
+        // Get message data and split it into signature and frame
+        var data = event.data.split("\r\n");
+        var signature = atob(data[1]);
+        var frame = atob(data[3]);
+
+        // Verify the signature
+        blake2s.update(frame);
+        var signatureBytes = new Uint8Array(signature.length);
+        for (var i = 0; i < signature.length; i++) {
+          signatureBytes[i] = signature.charCodeAt(i);
+        }
+        if (!verifier.verify(blake2s.digest(), signatureBytes)) {
+          warning.innerHTML = "Invalid signature!";
+          return;
+        }
+
+        // Create blob URL from frame data and set it as the video source
+        var blob = new Blob([frame], { type: "image/jpeg" });
+        video.src = URL.createObjectURL(blob);
+
+        // Clear any previous warning
+        warning.innerHTML = "";
+      }
+    </script>
+  </body>
+</html>

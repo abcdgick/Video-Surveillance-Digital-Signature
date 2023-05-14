@@ -1,0 +1,43 @@
+import cv2
+import hashlib
+import base64
+from Crypto.PublicKey import RSA
+from Crypto.Signature import pss
+from Crypto.Hash import BLAKE2s
+
+class Camera(object):
+    def __init__(self):
+        self.video = cv2.VideoCapture(0)
+
+        # Generate RSA key pair
+        self.key = RSA.generate(2048)
+        self.public_key = self.key.publickey().export_key()
+
+        # Initialize BLAKE2 hash object
+        self.blake_hash = BLAKE2s.new()
+
+    def __del__(self):
+        self.video.release()
+
+    def get_frame(self):
+        success, frame = self.video.read()
+        if not success:
+            return None
+
+        # Convert frame to byte array
+        frame_bytes = cv2.imencode('.jpg', frame)[1].tobytes()
+
+        # Hash the frame byte array with BLAKE2
+        self.blake_hash.update(frame_bytes)
+
+        # Sign the hash with RSA-PSS
+        signature = pss.new(self.key).sign(self.blake_hash)
+
+        # Encode signature and frame bytes as base64 strings
+        signature_str = base64.b64encode(signature).decode()
+        frame_str = base64.b64encode(frame_bytes).decode()
+
+        # Concatenate signature and frame strings with separator
+        result_str = signature_str + '|' + frame_str
+
+        return result_str

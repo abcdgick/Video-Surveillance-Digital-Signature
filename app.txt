@@ -1,0 +1,62 @@
+from flask import Flask, render_template, Response, request
+import cv2
+import hashlib
+import base64
+from Crypto.PublicKey import RSA
+from Crypto.Signature import pss
+from Crypto.Hash import BLAKE2s
+import os
+
+app = Flask(__name__)
+
+# Generate RSA key pair
+key = RSA.generate(2048)
+private_key = key.export_key()
+public_key = key.publickey().export_key()
+
+# Initialize BLAKE2 hash object
+blake_hash = BLAKE2s.new()
+
+# Endpoint for home page
+@app.route('/')
+def index():
+    return render_template('index.html', public_key=key.publickey().export_key().decode())
+
+# Endpoint for video streaming
+def generate_frames():
+    camera = cv2.VideoCapture(0)
+
+    while True:
+        # Capture video frame
+        success, frame = camera.read()
+        if not success:
+            break
+
+        # Convert frame to byte array
+        frame_bytes = cv2.imencode('.jpg', frame)[1].tobytes()
+
+        # Hash the frame byte array with BLAKE2
+        blake_hash.update(frame_bytes)
+
+        # Sign the hash with RSA-PSS
+        signature = pss.new(key).sign(blake_hash)
+
+        # Encode signature and frame bytes as base64 strings
+        signature_str = base64.b64encode(signature).decode()
+        frame_str = base64.b64encode(frame_bytes).decode()
+
+        # Yield the frame with its signature
+        yield (b'--frame\r\n'
+               b'Content-Type: text/plain\r\n\r\n' + signature_str.encode() + b'\r\n'
+               b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_str.encode() + b'\r\n')
+
+    camera.release()
+
+# Endpoint for video stream
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
