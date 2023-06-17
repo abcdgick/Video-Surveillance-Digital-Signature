@@ -3,10 +3,7 @@ import threading
 try:
     from greenlet import getcurrent as get_ident
 except ImportError:
-    try:
-        from thread import get_ident
-    except ImportError:
-        from _thread import get_ident
+    from _thread import get_ident
 
 
 class CameraEvent(object):
@@ -92,7 +89,7 @@ class BaseCamera(object):
         for frame in frames_iterator:
             BaseCamera.frame = frame
             BaseCamera.event.set()  # send signal to clients
-            time.sleep(0.1)
+            time.sleep(1)
 
             # if there hasn't been any clients asking for frames in
             # the last 60 seconds then stop the thread
