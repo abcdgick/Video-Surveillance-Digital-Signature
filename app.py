@@ -1,15 +1,20 @@
 #!/usr/bin/env python
+import socket
+import requests
 from importlib import import_module
 import os
 import hashlib
 import rsa
 from flask import Flask, render_template, Response
 
-if os.environ.get('CAMERA'):
-    Camera = import_module('camera_' + os.environ['CAMERA']).Camera
-else:
-    from camera import Camera
+from camera_opencv import Camera
 
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+private_ip = s.getsockname()[0]
+print(s.getsockname())
+public_ip = requests.get('https://api.ipify.org').text
+s.close()
 
 app = Flask(__name__)
 
@@ -43,3 +48,6 @@ def video_feed():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)
+
+print(f"Private IP: {private_ip}")
+print(f"Public IP: {public_ip}")
