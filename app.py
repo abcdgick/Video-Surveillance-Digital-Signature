@@ -2,7 +2,7 @@
 import socket
 import requests
 from Crypto.PublicKey import RSA
-from Crypto.Signature import pkcs1_15
+from Crypto.Signature import pss
 from Crypto.Hash import BLAKE2s
 from flask import Flask, render_template, Response
 
@@ -35,8 +35,7 @@ def sign_frame(frame):
     blake2_hash.update(frame)
 
     # Sign the hash with private key
-    signer = pkcs1_15.new(key)
-    signature = signer.sign(blake2_hash)
+    signature = pss.new(key).sign(blake2_hash)
     
     return frame, signature
 

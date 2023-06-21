@@ -1,63 +1,27 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Video Streaming Demonstration</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/8.0.20/jsrsasign-all-min.js"></script>
-    <script>
-      function verifySignature(frameData, signatureData, publicKeyData) {
-        // Convert data to Uint8Arrays
-        var frame = new Uint8Array(frameData);
-        var signature = new Uint8Array(signatureData);
-        var publicKey = KEYUTIL.getKey(publicKeyData);
-
-        // Verify the signature
-        var blake2 = new KJUR.crypto.MessageDigest({ alg: 'blake2s' });
-        blake2.updateHex(KJUR.crypto.Util.bytesToHex(frame));
-        var isValid = publicKey.verifyHex(blake2.digestHex(), KJUR.crypto.Util.bytesToHex(signature));
-
-        return isValid;
-      }
-
-      function displayError() {
-        var error = document.getElementById('error');
-        error.style.display = 'block';
-      }
-
-      function displayVideo(frameData, signatureData, publicKeyData) {
-        var isValid = verifySignature(frameData, signatureData, publicKeyData);
-
-        if (isValid) {
-          var video = document.getElementById('video');
-          video.src = frameData;
-          video.style.display = 'block';
-        } else {
-          displayError();
-        }
-      }
-
-      function loadVideo() {
-        var error = document.getElementById('error');
-        error.style.display = 'none';
-
-        var publicKeyData = document.getElementById('public-key').innerHTML.trim();
-        var source = new EventSource("/video_feed");
-
-        source.onmessage = function (event) {
-          var frameData = event.data.slice(0, -256);
-          var signatureData = event.data.slice(-256);
-          displayVideo(frameData, signatureData, publicKeyData);
-        };
-      }
-
-      window.onload = function () {
-        loadVideo();
-      };
-    </script>
+    <title>Video Surveillance</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   </head>
   <body>
+
+    <py-config>
+      packages = ["pycryptodome"]
+    </py-config>
+
+    <py-script>
+      from pyscript import Element
+      from Crypto.Signature import pss
+      from Crypto.Hash import BLAKE2s
+
+      public_key = Element('public-key').innerHtml
+      
+    </py-script>
     <h1>Video Streaming Demonstration</h1>
-    <div id="error" style="display: none; color: red;">Error: Failed to verify the digital signature.</div>
-    <img id="video" style="display: none;" />
+    <img id="video-feed" src="{{ url_for('video_feed') }}">
     <div id="public-key" style="display: none;">{{ public_key }}</div>
   </body>
 </html>
