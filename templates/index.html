@@ -8,20 +8,74 @@
   </head>
   <body>
 
+    <h1>Video Streaming Demonstration</h1>
+    <img src='{{ url_for("video_feed") }}'>
+    <div id="public-key" style="display: none;">{{ public_key }}</div>
+
     <py-config>
       packages = ["pycryptodome"]
     </py-config>
 
     <py-script>
       from pyscript import Element
+      from Crypto.PublicKey import RSA
       from Crypto.Signature import pss
       from Crypto.Hash import BLAKE2s
 
-      public_key = Element('public-key').innerHtml
-      
+      public_key = RSA.import_key(Element('public-key').innerHtml)
+      def validasi(response):
+        frame, signature = response.split(',')
+        frame = bytes.fromhex(frame)
+        signature = bytes.fromhex(signature)
+        blake2_hash = BLAKE2s.new()
+        blake2_hash.update(frame)
+        verifier = pss.new(public_key)
+        try:
+          verifier.verify(blake2_hash, signature)
+          print("Valid")
+        except (ValueError):
+          print("ValueError")
+        except (TypeError):
+          print("TypeError")
+
     </py-script>
-    <h1>Video Streaming Demonstration</h1>
-    <img id="video-feed" src="{{ url_for('video_feed') }}">
-    <div id="public-key" style="display: none;">{{ public_key }}</div>
+    <script>
+      var frame, signature, proses;
+      const utf8EncodeText = new TextEncoder();
+      window.onload = function() {
+        var imgElement = document.querySelector('img');
+        var xhr = new XMLHttpRequest();
+        var xhr2 = new XMLHttpRequest();
+        var url = '{{ url_for("video_feed") }}';
+        var url2 = '{{ url_for("video_text") }}';
+        xhr.open('GET', url, true);
+        
+
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 3) {
+            xhr2.open('GET', url2, true);
+            xhr2.onreadystatechange = function() {
+              var response = xhr2.responseText;
+              js_validasi = pyscript.interpreter.globals.get('validasi');
+              js_validasi(response);
+            };
+            xhr2.send();
+            // var data = xhr.response;
+            // console.log(typeof(data));
+            // var buangAwal = data.lastIndexOf("\r\n\r\n") + 4;
+            // console.log(buangAwal);
+            // var buangAkhir = data.lastIndexOf("\r\n--frame\r\n");
+            // data = data.slice(buangAwal, buangAkhir);
+            // console.log(data);
+            // frame = data.slice(0, -256);
+            // signature = data.slice(-256);
+            // js_validasi = pyscript.interpreter.globals.get('validasi');
+            // js_validasi(frame,signature);
+          }
+        };
+        xhr.send();
+        
+      };
+    </script>
   </body>
 </html>

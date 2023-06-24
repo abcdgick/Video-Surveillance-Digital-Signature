@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import socket
 import requests
+import codecs
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pss
 from Crypto.Hash import BLAKE2s
@@ -20,6 +21,8 @@ key = RSA.generate(2048)
 public_key = key.publickey().export_key()
 private_key = key.export_key()
 
+frame = b''
+
 # # Save the public key to a file (optional)
 # with open("public_key.pem", "wb") as file:
 #     file.write(public_key)
@@ -29,7 +32,8 @@ def index():
     """Video streaming home page."""
     return render_template('index.html', public_key=public_key.decode())
 
-def sign_frame(frame):
+def sign_frame():
+    global frame
     # Compute hash of the frame
     blake2_hash = BLAKE2s.new()
     blake2_hash.update(frame)
@@ -37,22 +41,27 @@ def sign_frame(frame):
     # Sign the hash with private key
     signature = pss.new(key).sign(blake2_hash)
     
-    return frame, signature
+    return signature
 
 def gen(camera):
     """Video streaming generator function."""
+    global frame
     yield b'--frame\r\n'
     while True:
         frame = camera.get_frame()
-        # Sign the frame
-        frame, signature = sign_frame(frame)
 
-        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + signature + b'\r\n--frame\r\n'
+        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
 
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
+    
+@app.route('/video_text')
+def video_text():
+    global frame
+    signature = sign_frame()
+    return Response(frame.hex() + ',' + signature.hex(), mimetype='text/plain')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)
