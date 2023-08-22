@@ -1,4 +1,5 @@
 import os
+from time import sleep
 import cv2
 from base_camera import BaseCamera
 
@@ -20,10 +21,10 @@ class Camera(BaseCamera):
         camera = cv2.VideoCapture(Camera.video_source)
         if not camera.isOpened():
             raise RuntimeError('Could not start camera.')
+        sleep(3)
 
         while True:
-            # read current frame
+            sleep(0.5)
             _, img = camera.read()
 
-            # encode as a jpeg image and return it
             yield cv2.imencode('.jpg', img)[1].tobytes()

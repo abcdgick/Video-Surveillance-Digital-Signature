@@ -32,15 +32,15 @@
         verifier = pss.new(public_key)
         try:
           verifier.verify(blake2_hash, signature)
-          print("Valid")
+          return "Valid"
         except (ValueError):
-          print("ValueError")
+          return "ValueError"
         except (TypeError):
-          print("TypeError")
+          return "TypeError"
 
     </py-script>
     <script>
-      var frame, signature, proses;
+      var frame, signature, proses, resp;
       const utf8EncodeText = new TextEncoder();
       window.onload = function() {
         var imgElement = document.querySelector('img');
@@ -49,32 +49,32 @@
         var url = '{{ url_for("video_feed") }}';
         var url2 = '{{ url_for("video_text") }}';
         xhr.open('GET', url, true);
-        
 
         xhr.onreadystatechange = function() {
+          var old = "Temp";
           if (xhr.readyState === 3) {
             xhr2.open('GET', url2, true);
             xhr2.onreadystatechange = function() {
-              var response = xhr2.responseText;
-              js_validasi = pyscript.interpreter.globals.get('validasi');
-              js_validasi(response);
+              if(xhr2.readyState === 4){
+                var response = xhr2.responseText;
+                if (response !== old){
+                  old = response;
+                  const js_validasi = pyscript.interpreter.globals.get('validasi');
+                  response.includes(",") ? resp = js_validasi(response) : null;
+                  // switch(resp){
+                  //   case "ValueError":
+                  //   case "TypeError":
+                  //     alert("Proses verifikasi digital signature gagal.");
+                  //     break;
+                  // }
+                  console.log(resp);
+                }
+              }
             };
             xhr2.send();
-            // var data = xhr.response;
-            // console.log(typeof(data));
-            // var buangAwal = data.lastIndexOf("\r\n\r\n") + 4;
-            // console.log(buangAwal);
-            // var buangAkhir = data.lastIndexOf("\r\n--frame\r\n");
-            // data = data.slice(buangAwal, buangAkhir);
-            // console.log(data);
-            // frame = data.slice(0, -256);
-            // signature = data.slice(-256);
-            // js_validasi = pyscript.interpreter.globals.get('validasi');
-            // js_validasi(frame,signature);
           }
         };
         xhr.send();
-        
       };
     </script>
   </body>
