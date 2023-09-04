@@ -8,8 +8,10 @@
   </head>
   <body>
 
-    <h1>Video Streaming Demonstration</h1>
-    <img src='{{ url_for("video_feed") }}'>
+    <h1 style="text-align: center;">Video Streaming Demonstration</h1>
+    <div style="text-align: center;">
+    <img id="stream" src='{{ url_for("video_feed") }}'>
+    </div>
     <div id="public-key" style="display: none;">{{ public_key }}</div>
 
     <py-config>
@@ -41,6 +43,7 @@
     </py-script>
     <script>
       var frame, signature, proses, resp;
+      var imgEl = document.getElementById("stream");
       const utf8EncodeText = new TextEncoder();
       window.onload = function() {
         var imgElement = document.querySelector('img');
@@ -61,12 +64,15 @@
                   old = response;
                   const js_validasi = pyscript.interpreter.globals.get('validasi');
                   response.includes(",") ? resp = js_validasi(response) : null;
-                  // switch(resp){
-                  //   case "ValueError":
-                  //   case "TypeError":
-                  //     alert("Proses verifikasi digital signature gagal.");
-                  //     break;
-                  // }
+                  switch(resp){
+                    case "ValueError":
+                    case "TypeError":
+                      imgEl.src = "";
+                      xhr2.abort();
+                      xhr.abort();
+                      alert("Proses verifikasi digital signature gagal.");
+                      break;
+                  }
                   console.log(resp);
                 }
               }

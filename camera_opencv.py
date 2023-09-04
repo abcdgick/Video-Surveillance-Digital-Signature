@@ -21,7 +21,7 @@ class Camera(BaseCamera):
         camera = cv2.VideoCapture(Camera.video_source)
         if not camera.isOpened():
             raise RuntimeError('Could not start camera.')
-        sleep(3)
+        sleep(5)
 
         while True:
             sleep(0.5)
