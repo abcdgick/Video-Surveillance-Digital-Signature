@@ -26,4 +26,4 @@ Agar sistem dapat diakses melalui internet, Anda dapat menggunakan alat seperti 
 lt --port 80
 ```
 
-##### Pastikan bahwa port yang akan digunakan oleh sistem (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
+#### Pastikan bahwa port yang akan digunakan oleh sistem (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
