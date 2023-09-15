@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from random import random
 import socket
 import requests
 from Crypto.PublicKey import RSA
@@ -56,8 +57,22 @@ def video_text():
     signature = sign_frame()
     return Response(frame.hex() + ',' + signature.hex(), mimetype='text/plain')
 
+def check_port():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('0.0.0.0', 5000))
+        return True
+    except OSError:
+        return False
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', threaded=True)
+    try:
+        app.run(host='0.0.0.0', threaded=True)
+    except:
+        if check_port():
+            print(f"Port default (5000) dapat digunakan.\nPeriksa kembali perintah yang anda masukkan.")
+        else:
+            print(f"Port default (5000) tidak dapat digunakan.\nMohon gunakan port lain seperti port {random.randint(1024, 49151)}")
 
 print(f"Private IP: {private_ip}")
 print(f"Public IP: {public_ip}")
