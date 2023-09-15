@@ -70,7 +70,7 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', threaded=True)
     except:
         if check_port():
-            print(f"Port default (5000) dapat digunakan.\nPeriksa kembali perintah yang anda masukkan.")
+            print(f"Port default (5000) dapat digunakan.\nPeriksa kembali perintah yang anda masukkan dan gunakan port default.")
         else:
             print(f"Port default (5000) tidak dapat digunakan.\nMohon gunakan port lain seperti port {random.randint(1024, 49151)}")
 
