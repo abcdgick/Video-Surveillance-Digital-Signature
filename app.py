@@ -76,3 +76,4 @@ if __name__ == '__main__':
 
 print(f"Private IP: {private_ip}")
 print(f"Public IP: {public_ip}")
+print("Port (default): 5000")
