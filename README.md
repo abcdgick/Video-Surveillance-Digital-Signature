@@ -23,7 +23,7 @@ gunicorn --threads 6 --workers 1 --bind 0.0.0.0:5000 app:app --log-level=warning
 Agar sistem dapat diakses melalui internet, Anda dapat menggunakan alat seperti localtunnel (lt). Sebelum menjalankan server, jalankan perintah berikut untuk mengatur port 80:
 
 ```bash
-lt --port 80
+lt --port 5000
 ```
 
 #### Pastikan bahwa port yang akan digunakan oleh sistem (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).

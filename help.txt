@@ -1,2 +1,2 @@
-lt --port 80
+lt --port 5000
 gunicorn --threads 6 --workers 1 --bind 0.0.0.0:5000 app:app --log-level=warning
