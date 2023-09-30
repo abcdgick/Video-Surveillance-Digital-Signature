@@ -26,4 +26,4 @@ Agar sistem dapat diakses melalui internet, Anda dapat menggunakan layanan pihak
 lt --port 5000
 ```
 
-#### Pastikan bahwa port yang akan digunakan oleh sistem (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
+#### Pastikan bahwa port yang akan digunakan (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
