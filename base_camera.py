@@ -69,7 +69,7 @@ class BaseCamera(object):
             BaseCamera.event.set() 
             time.sleep(0)
 
-            if time.time() - BaseCamera.last_access > 60:
+            if time.time() - BaseCamera.last_access > 300:
                 frames_iterator.close()
                 print('Stopping camera thread due to inactivity.')
                 break
