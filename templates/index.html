@@ -22,14 +22,14 @@
       from pyscript import Element
       from Crypto.PublicKey import RSA
       from Crypto.Signature import pss
-      from Crypto.Hash import BLAKE2s
+      from Crypto.Hash import BLAKE2b
 
       public_key = RSA.import_key(Element('public-key').innerHtml)
       def validasi(response):
         frame, signature = response.split(',')
         frame = bytes.fromhex(frame)
         signature = bytes.fromhex(signature)
-        blake2_hash = BLAKE2s.new()
+        blake2_hash = BLAKE2b.new()
         blake2_hash.update(frame)
         verifier = pss.new(public_key)
         try:
@@ -52,7 +52,6 @@
         var url = '{{ url_for("video_feed") }}';
         var url2 = '{{ url_for("video_text") }}';
         xhr.open('GET', url, true);
-
         xhr.onreadystatechange = function() {
           var old = "Temp";
           if (xhr.readyState === 3) {

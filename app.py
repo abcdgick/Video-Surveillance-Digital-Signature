@@ -4,7 +4,7 @@ import socket
 import requests
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pss
-from Crypto.Hash import BLAKE2s
+from Crypto.Hash import BLAKE2b
 from flask import Flask, render_template, Response
 
 from camera_opencv import Camera
@@ -32,7 +32,7 @@ def index():
 
 def sign_frame():
     global frame
-    blake2_hash = BLAKE2s.new()
+    blake2_hash = BLAKE2b.new()
     blake2_hash.update(frame)
 
     signature = pss.new(key).sign(blake2_hash)

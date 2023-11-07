@@ -24,7 +24,7 @@ class Camera(BaseCamera):
         sleep(5)
 
         while True:
-            sleep(0.5)
+            sleep(0.25)
             _, img = camera.read()
 
             yield cv2.imencode('.jpg', img)[1].tobytes()
