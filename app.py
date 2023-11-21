@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import random
+import sys
 import socket
 import requests
 from Crypto.PublicKey import RSA
@@ -14,6 +15,12 @@ s.connect(("8.8.8.8", 80))
 private_ip = s.getsockname()[0]
 public_ip = requests.get('https://api.ipify.org').text
 s.close()
+
+if len(sys.argv) >= 10:
+    if sys.argv[8] == "True":
+        timer = 100
+else:
+    timer = -1
 
 app = Flask(__name__)
 
@@ -53,9 +60,14 @@ def video_feed():
     
 @app.route('/video_text')
 def video_text():
-    global frame
+    global frame, timer
     signature = sign_frame()
-    return Response(frame.hex() + ',' + signature.hex(), mimetype='text/plain')
+    if timer > 0:
+        timer -= 1
+    if timer != 0:
+        return Response(frame.hex() + ',' + signature.hex(), mimetype='text/plain')
+    else:
+        return Response(signature.hex() + ',' + signature.hex(), mimetype='text/plain')
 
 def cetak():
     warning = "\nPastikan port yang digunakan (default port 5000) dapat diakses oleh sistem\n"
