@@ -1,9 +1,69 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Video Streaming Demonstration</title>
+    <title>Video Surveillance</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   </head>
   <body>
-    <h1>Video Streaming Demonstration</h1>
-    <img src="{{ url_for('video_feed') }}">
+
+    <h1 style="text-align: center;">Video Streaming Demonstration</h1>
+    <div style="text-align: center;">
+    <img id="stream" src='{{ url_for("video_feed") }}'>
+    <img id="DS" src='{{ url_for("video_text")}}' style="display: none;">
+    </div>
+    <div id="public-key" style="display: none;">{{ public_key }}</div>
+
+    <py-config>
+      packages = ["pycryptodome"]
+    </py-config>
+
+    <py-script>
+      from pyscript import Element
+      from Crypto.PublicKey import RSA
+      from Crypto.Signature import pss
+      from Crypto.Hash import BLAKE2b
+
+      public_key = RSA.import_key(Element('public-key').innerHtml)
+      def validasi():
+        response = Element('DS').innerHtml
+        print(response)
+        frame, signature = response.split(',')
+        frame = bytes.fromhex(frame)
+        signature = bytes.fromhex(signature)
+        blake2_hash = BLAKE2b.new()
+        blake2_hash.update(frame)
+        verifier = pss.new(public_key)
+        try:
+          verifier.verify(blake2_hash, signature)
+          return "Valid"
+        except (ValueError):
+          return "ValueError"
+        except (TypeError):
+          return "TypeError"
+
+    </py-script>
+    <script>
+      var resp;
+      var imgEl = document.getElementById("stream");
+      var dsEL = document.getElementById("DS");
+      function verify(){
+        const js_validasi = pyscript.interpreter.globals.get('validasi');
+        resp = js_validasi();
+        switch(resp){
+          case "ValueError":
+          case "TypeError":
+          imgEl.src = "";
+          xhr.abort();
+          alert("Proses verifikasi digital signature gagal.");
+          break;
+        }
+        console.log(resp);
+      }
+      window.onload = function() {
+        setInterval(verify, 100);
+      };
+    </script>
   </body>
 </html>
