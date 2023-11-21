@@ -42,11 +42,9 @@
 
     </py-script>
     <script>
-      var frame, signature, proses, resp;
+      var resp;
       var imgEl = document.getElementById("stream");
-      const utf8EncodeText = new TextEncoder();
       window.onload = function() {
-        var imgElement = document.querySelector('img');
         var xhr = new XMLHttpRequest();
         var xhr2 = new XMLHttpRequest();
         var url = '{{ url_for("video_feed") }}';
