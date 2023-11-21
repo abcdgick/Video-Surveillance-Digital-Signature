@@ -18,12 +18,18 @@ Untuk menjalankan server, gunakan perintah berikut:
 gunicorn --threads 6 --workers 1 --bind 0.0.0.0:5000 app:app --log-level=warning
 ```
 
+Untuk melakukan pengujian Digital Signature, set sys.argv[1] menjadi True:
+
+```bash
+gunicorn --threads 6 --workers 1 --bind 0.0.0.0:5000 app:app True --log-level=warning
+```
+
 ## Akses Melalui Internet
 
 Agar sistem dapat diakses melalui internet, Anda dapat menggunakan layanan pihak ketiga seperti localtunnel (lt). Sebelum menjalankan server, jalankan perintah berikut agar localtunnel mengikat port yang digunakan server (default port 5000) :
 
 ```bash
-lt --port 5000
+lt -p 5000 -s blake
 ```
 
 #### Pastikan bahwa port yang akan digunakan (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
