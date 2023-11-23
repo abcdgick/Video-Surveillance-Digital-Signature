@@ -26,10 +26,10 @@ gunicorn --threads 6 --workers 1 --bind 0.0.0.0:5000 app:app True --log-level=wa
 
 ## Akses Melalui Internet
 
-Agar sistem dapat diakses melalui internet, Anda dapat menggunakan layanan pihak ketiga seperti localtunnel (lt). Sebelum menjalankan server, jalankan perintah berikut agar localtunnel mengikat port yang digunakan server (default port 5000) :
+Agar sistem dapat diakses melalui internet, Anda dapat menggunakan layanan pihak ketiga seperti ngrok. Sebelum menjalankan server, jalankan perintah berikut agar ngrok mengikat port yang digunakan server (default port 5000) :
 
 ```bash
-lt -p 5000 -s blake
+ngrok http --domain=grateful-marlin-adversely.ngrok-free.app http://localhost:5000
 ```
 
 #### Pastikan bahwa port yang akan digunakan (default port 5000) dapat diakses oleh sistem (tidak digunakan oleh aplikasi lain, tidak diblokir oleh firewall, dsb).
